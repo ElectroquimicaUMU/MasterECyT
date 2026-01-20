@@ -10,10 +10,10 @@ F = 96485.0  # C/mol
 R = 8.314    # J/mol/K
 T = 298.0    # K
 
-# Sistema físico  
+# Sistema físico
 D = 1.0e-9          # m^2/s
-a = 5000e-6           # m (radio electrodo)
-E0 = -0.5            # V (E0')
+a = 5000e-6         # m (radio electrodo)
+E0 = -0.5           # V (E0')
 
 # Parámetros eléctricos (fijos)
 Ru = 500.0           # ohm
@@ -211,11 +211,11 @@ if "run_id" not in st.session_state:
 st.sidebar.header("Entradas (ajustables)")
 E_text = st.sidebar.text_input("Potencial aplicado E [V]", value="0.10")
 tp_text = st.sidebar.text_input("Duración del pulso tp [s]", value="5.0")
-c_total = st.sidebar.text_input("Concentración inicial [mM]", value="1.0")
+c_text = st.sidebar.text_input("Concentración inicial [mM]", value="1.0")
 
 E_valid = True
 tp_valid = True
-c_total = True
+c_valid = True
 
 try:
     E_app = _parse_float(E_text)
@@ -234,7 +234,19 @@ except Exception:
     tpulse = float("nan")
     st.sidebar.error("tp inválido. Ej.: 5 o 12.5")
 
-sim_enabled = E_valid and tp_valid
+# Concentración inicial (mM) -> (mol/m^3). Numéricamente: 1 mM = 1 mol/m^3
+try:
+    c_mM = _parse_float(c_text)
+    if c_mM <= 0:
+        c_valid = False
+        st.sidebar.error("La concentración inicial debe ser > 0.")
+    c_total = float(c_mM)  # mol/m^3
+except Exception:
+    c_valid = False
+    c_total = float("nan")
+    st.sidebar.error("Concentración inválida. Ej.: 1.0")
+
+sim_enabled = E_valid and tp_valid and c_valid
 
 colb1, colb2 = st.sidebar.columns(2)
 btn_add = colb1.button("Simular + añadir", disabled=not sim_enabled)
@@ -280,7 +292,7 @@ if btn_add and sim_enabled:
     st.session_state.run_id += 1
 
 if len(st.session_state.runs) == 0:
-    st.info("Introduce E y tp, luego pulsa “Simular + añadir”.")
+    st.info("Introduce E, tp y concentración inicial, luego pulsa “Simular + añadir”.")
     st.stop()
 
 # Tabla
@@ -381,16 +393,3 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
