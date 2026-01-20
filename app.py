@@ -330,9 +330,7 @@ for run in st.session_state.runs:
         {
             "ID": run["id"],
             "E [V]": run["E"],
-            "tp [s]": run["tpulse"],
-            "dt [s]": run["dt"],
-            "r_max [m]": run["r_max"],
+            "conc. [mM]": run["c_mM"],
         }
     )
 st.dataframe(rows, use_container_width=True, hide_index=True)
@@ -466,3 +464,4 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
