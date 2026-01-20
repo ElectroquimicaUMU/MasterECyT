@@ -202,7 +202,7 @@ def export_txt_itotal(runs):
 # Streamlit UI
 # ----------------------------
 st.set_page_config(page_title="Cronoamperometría esférica reversible", layout="wide")
-st.title("Cronoamperometría (electrodo esférico, reversible)")
+st.title("Cronoamperometría")
 
 if "runs" not in st.session_state:
     st.session_state.runs = []
@@ -380,4 +380,5 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
