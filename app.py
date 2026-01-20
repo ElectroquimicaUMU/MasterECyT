@@ -27,7 +27,7 @@ DT_MAX = 5e-3
 DR = 2e-6           # m
 
 # Dominio externo
-DOMAIN_FACTOR = 6.0  # r_max = a + factor*sqrt(D*tp)
+DOMAIN_FACTOR = 1.0  # r_max = a + factor*sqrt(D*tp)
 
 
 # ----------------------------
@@ -380,6 +380,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
