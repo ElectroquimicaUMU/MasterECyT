@@ -247,7 +247,7 @@ with st.sidebar.expander("Parámetros del sistema"):
     st.write(f"D = {D:.2e} m²/s")
     st.write(f"A = {4.0 * math.pi * (a ** 2):.2e} m²")
     st.write(f"E0' = {E0:.3g} V")
-    st.write(f"c_total = {c_total:.3g} mol/m³")
+    st.write(f"c_total = {c_total:.3g} mM")
     st.write(f"Ru = {Ru:.3g} Ω")
     st.write(f"Cdl = {Cdl:.3g} F")
 
@@ -380,5 +380,6 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
