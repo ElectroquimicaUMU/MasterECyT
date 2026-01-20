@@ -314,6 +314,7 @@ if btn_add and sim_enabled:
             "I_cap": I_cap,
             "dt": float(dt),
             "r_max": float(r_max),
+            "c_total": float(c_total),
         }
     )
     st.session_state.run_id += 1
@@ -464,5 +465,6 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
 
