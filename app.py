@@ -356,18 +356,17 @@ st.download_button(
 
 # Gráficas: |I_total| y regresión
 st.markdown("### Visualización")
-col_left, col_right = st.columns(2)
 
-with col_left:
-    fig, ax = plt.subplots()
-    for run in selected:
-        ax.plot(run["times"], np.abs(run["I_total"]), label=f"ID {run['id']}: E={run['E']:.3g} V, tp={run['tpulse']:.3g} s")
-    ax.set_xlabel("t [s]")
-    ax.set_ylabel("|I| [A]")
-    ax.set_title("Corriente (valor absoluto)")
-    ax.grid(True)
-    ax.legend(fontsize=8)
-    st.pyplot(fig, use_container_width=True)
+# 1) |I_total|(t)
+fig, ax = plt.subplots()
+for run in selected:
+    ax.plot(run["times"], np.abs(run["I_total"]), label=f"ID {run['id']}: E={run['E']:.3g} V, tp={run['tpulse']:.3g} s")
+ax.set_xlabel("t [s]")
+ax.set_ylabel("|I| [A]")
+ax.set_title("Corriente (valor absoluto)")
+ax.grid(True)
+ax.legend(fontsize=8)
+st.pyplot(fig, use_container_width=True)
 
 # Slider de rango para regresión (sólo Itotal)
 t_min_possible = float(min(run["times"][0] for run in selected))
@@ -380,42 +379,42 @@ t0_hi = max(t0_lo, min(t_max_possible, max(0.1, t_max_possible * 0.8)))
 # paso del slider (evitar step=0)
 step = max((t_max_possible - t_min_possible) / 500.0, t_min_possible)
 
-with col_right:
-    st.markdown("**Regresión: ln|I_total| vs ln(t)**")
-    t_min_reg, t_max_reg = st.slider(
-        "Rango de tiempos [s]",
-        min_value=t_min_possible,
-        max_value=t_max_possible,
-        value=(t0_lo, t0_hi),
-        step=step,
-    )
+# 2) Regresión ln|I| vs ln(t)
+st.markdown("**Regresión: ln|I_total| vs ln(t)**")
+t_min_reg, t_max_reg = st.slider(
+    "Rango de tiempos [s]",
+    min_value=t_min_possible,
+    max_value=t_max_possible,
+    value=(t0_lo, t0_hi),
+    step=step,
+)
 
-    fig, ax = plt.subplots()
-    summary = []
+fig, ax = plt.subplots()
+summary = []
 
-    for run in selected:
-        t = run["times"]
-        I = run["I_total"]
-        mask = (t >= t_min_reg) & (t <= t_max_reg)
-        reg = regression_lnI_lnT(t[mask], I[mask])
-        if reg is None:
-            summary.append({"ID": run["id"], "m": np.nan, "b": np.nan, "R2": np.nan, "N": int(np.sum(mask))})
-            continue
+for run in selected:
+    t = run["times"]
+    I = run["I_total"]
+    mask = (t >= t_min_reg) & (t <= t_max_reg)
+    reg = regression_lnI_lnT(t[mask], I[mask])
+    if reg is None:
+        summary.append({"ID": run["id"], "m": np.nan, "b": np.nan, "R2": np.nan, "N": int(np.sum(mask))})
+        continue
 
-        ax.scatter(reg["x"], reg["y"], s=12, label=f"ID {run['id']} datos")
-        ax.plot(reg["x"], reg["yhat"], linewidth=2, label=f"ID {run['id']} fit: m={reg['m']:.3g}, R²={reg['r2']:.4f}")
-        summary.append({"ID": run["id"], "m": reg["m"], "b": reg["b"], "R2": reg["r2"], "N": reg["n"]})
+    ax.scatter(reg["x"], reg["y"], s=12, label=f"ID {run['id']} datos")
+    ax.plot(reg["x"], reg["yhat"], linewidth=2, label=f"ID {run['id']} fit: m={reg['m']:.3g}, R²={reg['r2']:.4f}")
+    summary.append({"ID": run["id"], "m": reg["m"], "b": reg["b"], "R2": reg["r2"], "N": reg["n"]})
 
-    ax.set_xlabel("ln(t)")
-    ax.set_ylabel("ln(|I|)")
-    ax.set_title("Ajuste lineal en el rango seleccionado")
-    ax.grid(True)
-    ax.legend(fontsize=8)
-    st.pyplot(fig, use_container_width=True)
+ax.set_xlabel("ln(t)")
+ax.set_ylabel("ln(|I|)")
+ax.set_title("Ajuste lineal en el rango seleccionado")
+ax.grid(True)
+ax.legend(fontsize=8)
+st.pyplot(fig, use_container_width=True)
 
-    st.dataframe(summary, use_container_width=True, hide_index=True)
+st.dataframe(summary, use_container_width=True, hide_index=True)
 
-# Regresión |I| vs t^{-1/2}
+# 3) Regresión |I| vs t^{-1/2}
 st.markdown("### Regresión: |I| vs t$^{-1/2}$")
 
 fig, ax = plt.subplots()
@@ -465,6 +464,3 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
-
-
-
