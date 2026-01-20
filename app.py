@@ -17,8 +17,8 @@ E0 = -0.5            # V (E0')
 c_total = 1.0       # mol/m^3 (c_ox + c_red constante)
 
 # Parámetros eléctricos (fijos)
-Ru = 500.0           # ohm
-Cdl = 10e-6         # F
+Ru = 1000.0           # ohm
+Cdl = 50e-6         # F
 
 # Discretización (fija, pero dt se adapta a tp)
 TARGET_STEPS = 4000
@@ -380,6 +380,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
