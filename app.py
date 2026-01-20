@@ -17,7 +17,7 @@ E0 = -0.5            # V (E0')
 c_total = 1.0       # mol/m^3 (c_ox + c_red constante)
 
 # Parámetros eléctricos (fijos)
-Ru = 1000.0           # ohm
+Ru = 500.0           # ohm
 Cdl = 100e-6         # F
 
 # Discretización (fija, pero dt se adapta a tp)
@@ -27,7 +27,7 @@ DT_MAX = 5e-3
 DR = 2e-6           # m
 
 # Dominio externo
-DOMAIN_FACTOR = 1.0  # r_max = a + factor*sqrt(D*tp)
+DOMAIN_FACTOR = 2.0  # r_max = a + factor*sqrt(D*tp)
 
 
 # ----------------------------
@@ -380,6 +380,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
