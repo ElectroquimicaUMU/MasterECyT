@@ -12,8 +12,8 @@ T = 298.0    # K
 
 # Sistema físico
 D = 1.0e-9          # m^2/s
-a = 25e-6           # m (radio electrodo)
-E0 = 0.0            # V (E0')
+a = 100e-6           # m (radio electrodo)
+E0 = -0.5            # V (E0')
 c_total = 1.0       # mol/m^3 (c_ox + c_red constante)
 
 # Parámetros eléctricos (fijos)
@@ -243,19 +243,16 @@ if btn_clear:
     st.session_state.runs = []
     st.session_state.run_id = 1
 
-with st.sidebar.expander("Parámetros fijados en el código"):
+with st.sidebar.expander("Parámetros del sistema"):
     st.write(f"D = {D:.2e} m²/s")
-    st.write(f"a = {a:.2e} m")
+    st.write(f"A = {4.0 * math.pi * (a ** 2):.2e} m²")
     st.write(f"E0' = {E0:.3g} V")
     st.write(f"c_total = {c_total:.3g} mol/m³")
     st.write(f"Ru = {Ru:.3g} Ω")
     st.write(f"Cdl = {Cdl:.3g} F")
-    st.write(f"Δr = {DR:.2e} m")
-    st.write(f"dt adaptativo: tp/{TARGET_STEPS} con límites [{DT_MIN}, {DT_MAX}] s")
-    st.write(f"r_max = a + {DOMAIN_FACTOR}·sqrt(D·tp)  (flujo nulo en r_max)")
 
 if btn_add and sim_enabled:
-    with st.spinner("Resolviendo difusión esférica (implícito)..."):
+    with st.spinner("Resolviendo..."):
         times, jF, r, c_ox_final, r_max, dt = solve_spherical_reversible_chronoamperometry(E_app, tpulse)
 
     # Faradaica total: I_F = 4πa² jF
@@ -383,3 +380,4 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
