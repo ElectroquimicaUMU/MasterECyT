@@ -12,7 +12,7 @@ T = 298.0    # K
 
 # Sistema físico
 D = 1.0e-9          # m^2/s
-a = 100e-6           # m (radio electrodo)
+a = 1000e-6           # m (radio electrodo)
 E0 = -0.5            # V (E0')
 c_total = 1.0       # mol/m^3 (c_ox + c_red constante)
 
@@ -380,6 +380,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
