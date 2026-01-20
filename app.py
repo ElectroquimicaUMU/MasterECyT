@@ -182,6 +182,30 @@ def regression_lnI_lnT(t: np.ndarray, I: np.ndarray):
     return {"m": float(m), "b": float(b), "r2": r2, "x": x, "y": y, "yhat": yhat, "n": int(x.size)}
 
 
+# --- NUEVO: regresión |I| vs t^{-1/2} ---
+def regression_I_vs_tinvhalf(t: np.ndarray, I: np.ndarray):
+    """Regresión y = m x + b con x=t^{-1/2}, y=|I|."""
+    t = np.asarray(t, dtype=float)
+    I = np.asarray(I, dtype=float)
+
+    mask = np.isfinite(t) & np.isfinite(I) & (t > 0)
+    t2 = t[mask]
+    I2 = np.abs(I[mask])
+    if t2.size < 2:
+        return None
+
+    x = 1.0 / np.sqrt(t2)
+    y = I2
+    m, b = np.polyfit(x, y, 1)
+
+    yhat = m * x + b
+    ss_res = float(np.sum((y - yhat) ** 2))
+    ss_tot = float(np.sum((y - float(np.mean(y))) ** 2))
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else float("nan")
+
+    return {"m": float(m), "b": float(b), "r2": r2, "x": x, "y": y, "yhat": yhat, "n": int(x.size)}
+
+
 def export_txt_itotal(runs):
     lines = []
     lines.append("# I (A)")
@@ -389,7 +413,36 @@ with col_right:
 
     st.dataframe(summary, use_container_width=True, hide_index=True)
 
+# --- NUEVO: Gráfica y regresión |I| vs t^{-1/2} (mismo rango t_min_reg..t_max_reg) ---
+st.markdown("### Regresión: |I| vs t$^{-1/2}$")
+
+fig, ax = plt.subplots()
+summary2 = []
+
+for run in selected:
+    t = run["times"]
+    I = run["I_total"]
+    mask = (t >= t_min_reg) & (t <= t_max_reg)
+
+    reg2 = regression_I_vs_tinvhalf(t[mask], I[mask])
+    if reg2 is None:
+        summary2.append({"ID": run["id"], "m": np.nan, "b": np.nan, "R2": np.nan, "N": int(np.sum(mask))})
+        continue
+
+    ax.scatter(reg2["x"], reg2["y"], s=12, label=f"ID {run['id']} datos")
+    ax.plot(reg2["x"], reg2["yhat"], linewidth=2, label=f"ID {run['id']} fit: m={reg2['m']:.3g}, R²={reg2['r2']:.4f}")
+    summary2.append({"ID": run["id"], "m": reg2["m"], "b": reg2["b"], "R2": reg2["r2"], "N": reg2["n"]})
+
+ax.set_xlabel(r"t$^{-1/2}$ [s$^{-1/2}$]")
+ax.set_ylabel("|I| [A]")
+ax.set_title("Ajuste lineal en el rango seleccionado")
+ax.grid(True)
+ax.legend(fontsize=8)
+st.pyplot(fig, use_container_width=True)
+
+st.dataframe(summary2, use_container_width=True, hide_index=True)
+
 st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
-    "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
+    "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
