@@ -10,7 +10,7 @@ F = 96485.0  # C/mol
 R = 8.314    # J/mol/K
 T = 298.0    # K
 
-# Sistema físico
+# Sistema físico  
 D = 1.0e-9          # m^2/s
 a = 5000e-6           # m (radio electrodo)
 E0 = -0.5            # V (E0')
@@ -185,10 +185,10 @@ def regression_lnI_lnT(t: np.ndarray, I: np.ndarray):
 
 def export_txt_itotal(runs):
     lines = []
-    lines.append("# I_total(t) (A)")
-    lines.append("# I_total = I_F + I_cap ; I_cap = (E/Ru)*exp(-t/(Ru*Cdl))")
+    lines.append("# I (A)")
+    lines.append("# I = I_F + I_cap ; I_cap = (E/Ru)*exp(-t/(Ru*Cdl))")
     lines.append(f"# Ru[ohm]={Ru}, Cdl[F]={Cdl}")
-    lines.append("# Columnas: t[s]\tI_total[A]")
+    lines.append("# Columnas: t[s]\tI[A]")
     for run in runs:
         lines.append("")
         lines.append(f"# --- RUN {run['id']} ---")
@@ -308,9 +308,9 @@ if not selected:
 st.markdown("### Descarga")
 txt_it = export_txt_itotal(selected)
 st.download_button(
-    "Descargar I_total(t) .txt",
+    "Descargar I(t) .txt",
     data=txt_it,
-    file_name="I_total_vs_t.txt",
+    file_name="I_vs_t.txt",
     mime="text/plain",
     use_container_width=True,
 )
@@ -324,8 +324,8 @@ with col_left:
     for run in selected:
         ax.plot(run["times"], np.abs(run["I_total"]), label=f"ID {run['id']}: E={run['E']:.3g} V, tp={run['tpulse']:.3g} s")
     ax.set_xlabel("t [s]")
-    ax.set_ylabel("|I_total| [A]")
-    ax.set_title("Corriente total (valor absoluto)")
+    ax.set_ylabel("|I| [A]")
+    ax.set_title("Corriente (valor absoluto)")
     ax.grid(True)
     ax.legend(fontsize=8)
     st.pyplot(fig, use_container_width=True)
@@ -368,7 +368,7 @@ with col_right:
         summary.append({"ID": run["id"], "m": reg["m"], "b": reg["b"], "R2": reg["r2"], "N": reg["n"]})
 
     ax.set_xlabel("ln(t)")
-    ax.set_ylabel("ln(|I_total|)")
+    ax.set_ylabel("ln(|I|)")
     ax.set_title("Ajuste lineal en el rango seleccionado")
     ax.grid(True)
     ax.legend(fontsize=8)
@@ -380,6 +380,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
