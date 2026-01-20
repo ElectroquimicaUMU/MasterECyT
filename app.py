@@ -14,7 +14,6 @@ T = 298.0    # K
 D = 1.0e-9          # m^2/s
 a = 5000e-6           # m (radio electrodo)
 E0 = -0.5            # V (E0')
-c_total = 1.0       # mol/m^3 (c_ox + c_red constante)
 
 # Parámetros eléctricos (fijos)
 Ru = 500.0           # ohm
@@ -212,9 +211,11 @@ if "run_id" not in st.session_state:
 st.sidebar.header("Entradas (ajustables)")
 E_text = st.sidebar.text_input("Potencial aplicado E [V]", value="0.10")
 tp_text = st.sidebar.text_input("Duración del pulso tp [s]", value="5.0")
+c_total = st.sidebar.text_input("Concentración inicial [mM]", value="1.0")
 
 E_valid = True
 tp_valid = True
+c_total = True
 
 try:
     E_app = _parse_float(E_text)
@@ -380,6 +381,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresión: ln|I_total| vs ln(t) en el rango seleccionado."
 )
+
 
 
 
