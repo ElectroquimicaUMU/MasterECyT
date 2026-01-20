@@ -36,6 +36,10 @@ def _parse_float(text: str) -> float:
     return float(text.strip().replace(",", "."))
 
 
+def _sci(x: float) -> str:
+    return f"{x:.6e}"
+
+
 def eta(E: float, E0_: float) -> float:
     return (F / (R * T)) * (E - E0_)
 
@@ -182,7 +186,6 @@ def regression_lnI_lnT(t: np.ndarray, I: np.ndarray):
     return {"m": float(m), "b": float(b), "r2": r2, "x": x, "y": y, "yhat": yhat, "n": int(x.size)}
 
 
-# --- NUEVO: regresión |I| vs t^{-1/2} ---
 def regression_I_vs_tinvhalf(t: np.ndarray, I: np.ndarray):
     """Regresión y = m x + b con x=t^{-1/2}, y=|I|."""
     t = np.asarray(t, dtype=float)
@@ -281,7 +284,7 @@ if btn_clear:
     st.session_state.run_id = 1
 
 with st.sidebar.expander("Parámetros del sistema"):
-    st.write(f"D = {D:.2e} m²/s")
+    st.write(f"D = ¿? m²/s")
     st.write(f"A = {4.0 * math.pi * (a ** 2):.2e} m²")
     st.write(f"E0' = {E0:.3g} V")
     st.write(f"c_total = {c_total:.3g} mM")
@@ -413,7 +416,7 @@ with col_right:
 
     st.dataframe(summary, use_container_width=True, hide_index=True)
 
-# --- NUEVO: Gráfica y regresión |I| vs t^{-1/2} (mismo rango t_min_reg..t_max_reg) ---
+# Regresión |I| vs t^{-1/2}
 st.markdown("### Regresión: |I| vs t$^{-1/2}$")
 
 fig, ax = plt.subplots()
@@ -430,7 +433,12 @@ for run in selected:
         continue
 
     ax.scatter(reg2["x"], reg2["y"], s=12, label=f"ID {run['id']} datos")
-    ax.plot(reg2["x"], reg2["yhat"], linewidth=2, label=f"ID {run['id']} fit: m={reg2['m']:.3g}, R²={reg2['r2']:.4f}")
+    ax.plot(
+        reg2["x"],
+        reg2["yhat"],
+        linewidth=2,
+        label=f"ID {run['id']} fit: m={_sci(reg2['m'])}, b={_sci(reg2['b'])}, R²={reg2['r2']:.4f}",
+    )
     summary2.append({"ID": run["id"], "m": reg2["m"], "b": reg2["b"], "R2": reg2["r2"], "N": reg2["n"]})
 
 ax.set_xlabel(r"t$^{-1/2}$ [s$^{-1/2}$]")
@@ -440,7 +448,19 @@ ax.grid(True)
 ax.legend(fontsize=8)
 st.pyplot(fig, use_container_width=True)
 
-st.dataframe(summary2, use_container_width=True, hide_index=True)
+summary2_fmt = []
+for row in summary2:
+    summary2_fmt.append(
+        {
+            "ID": row["ID"],
+            "m": ("" if not np.isfinite(row["m"]) else _sci(float(row["m"]))),
+            "b": ("" if not np.isfinite(row["b"]) else _sci(float(row["b"]))),
+            "R2": row["R2"],
+            "N": row["N"],
+        }
+    )
+
+st.dataframe(summary2_fmt, use_container_width=True, hide_index=True)
 
 st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
