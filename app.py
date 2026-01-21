@@ -404,7 +404,7 @@ for run in selected:
         reg2["x"],
         reg2["yhat"],
         linewidth=2,
-        label=f"ID {run['id']} fit: m={_sci(reg2['m'])}, b={_sci(reg2['b'])}, R²={reg2['r2']:.4f}",
+        label=f"ID {run['id']} fit}",
     )
     summary2.append({"ID": run["id"], "m": reg2["m"], "b": reg2["b"], "R2": reg2["r2"], "N": reg2["n"]})
 
@@ -433,6 +433,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
 
 
