@@ -258,7 +258,7 @@ if "runs" not in st.session_state:
 if "run_id" not in st.session_state:
     st.session_state.run_id = 1
 
-st.sidebar.header("Entradas (ajustables)")
+st.sidebar.header("Parámetros ajustables")
 E_text = st.sidebar.text_input("Potencial aplicado E [V]", value="0.10")
 tp_text = st.sidebar.text_input("Duración del pulso tp [s]", value="5.0")
 c_text = st.sidebar.text_input("Concentración inicial [mM]", value="1.0")
@@ -482,6 +482,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
 
 
