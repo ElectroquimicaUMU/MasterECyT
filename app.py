@@ -11,7 +11,7 @@ st.sidebar.write("Platform:", platform.platform())
 st.sidebar.write("Python:", platform.python_version())
 st.sidebar.write("CPU count (logical):", os.cpu_count())
 
-# CPU model: Linux usually has this; other OS may not.
+'''# CPU model: Linux usually has this; other OS may not.
 try:
     with open("/proc/cpuinfo", "r") as f:
         cpuinfo = f.read()
@@ -20,7 +20,7 @@ try:
             st.sidebar.write("CPU model:", line.split(":", 1)[1].strip())
             break
 except Exception:
-    st.sidebar.write("CPU model: unavailable")
+    st.sidebar.write("CPU model: unavailable")'''
 
 # ----------------------------
 # Parámetros FIJOS (no editables por el usuario)
@@ -326,7 +326,6 @@ with st.sidebar.expander("Parámetros del sistema"):
     st.write(f"D = ¿? m²/s")
     st.write(f"A = {4.0 * math.pi * (a ** 2):.2e} m²")
     st.write(f"E0' = {E0:.3g} V")
-    st.write(f"c_total = {c_total:.3g} mM")
     st.write(f"Ru = {Ru:.3g} Ω")
     st.write(f"Cdl = {Cdl:.3g} F")
 
@@ -499,3 +498,4 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
