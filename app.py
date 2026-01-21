@@ -186,29 +186,6 @@ def _simulate_cached(E_app: float, tpulse: float, c_total: float):
     return times, I_total, I_F, I_cap, float(dt), float(r_max)
 
 
-def regression_lnI_lnT(t: np.ndarray, I: np.ndarray):
-    """Regresión y = m x + b con x=ln(t), y=ln(|I|)."""
-    t = np.asarray(t, dtype=float)
-    I = np.asarray(I, dtype=float)
-
-    mask = np.isfinite(t) & np.isfinite(I) & (t > 0) & (np.abs(I) > 0)
-    t2 = t[mask]
-    I2 = I[mask]
-    if t2.size < 2:
-        return None
-
-    x = np.log(t2)
-    y = np.log(np.abs(I2))
-    m, b = np.polyfit(x, y, 1)
-
-    yhat = m * x + b
-    ss_res = float(np.sum((y - yhat) ** 2))
-    ss_tot = float(np.sum((y - float(np.mean(y))) ** 2))
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else float("nan")
-
-    return {"m": float(m), "b": float(b), "r2": r2, "x": x, "y": y, "yhat": yhat, "n": int(x.size)}
-
-
 def regression_I_vs_tinvhalf(t: np.ndarray, I: np.ndarray):
     """Regresión y = m x + b con x=t^{-1/2}, y=|I|."""
     t = np.asarray(t, dtype=float)
@@ -397,42 +374,8 @@ t0_hi = max(t0_lo, min(t_max_possible, max(0.1, t_max_possible * 0.8)))
 # paso del slider (evitar step=0)
 step = max((t_max_possible - t_min_possible) / 500.0, t_min_possible)
 
-# 2) Regresión ln|I| vs ln(t)
-st.markdown("**Regresión: ln|I_total| vs ln(t)**")
-t_min_reg, t_max_reg = st.slider(
-    "Rango de tiempos [s]",
-    min_value=t_min_possible,
-    max_value=t_max_possible,
-    value=(t0_lo, t0_hi),
-    step=step,
-)
 
-fig, ax = plt.subplots()
-summary = []
-
-for run in selected:
-    t = run["times"]
-    I = run["I_total"]
-    mask = (t >= t_min_reg) & (t <= t_max_reg)
-    reg = regression_lnI_lnT(t[mask], I[mask])
-    if reg is None:
-        summary.append({"ID": run["id"], "m": np.nan, "b": np.nan, "R2": np.nan, "N": int(np.sum(mask))})
-        continue
-
-    ax.scatter(reg["x"], reg["y"], s=12, label=f"ID {run['id']} datos")
-    ax.plot(reg["x"], reg["yhat"], linewidth=2, label=f"ID {run['id']} fit: m={reg['m']:.3g}, R²={reg['r2']:.4f}")
-    summary.append({"ID": run["id"], "m": reg["m"], "b": reg["b"], "R2": reg["r2"], "N": reg["n"]})
-
-ax.set_xlabel("ln(t)")
-ax.set_ylabel("ln(|I|)")
-ax.set_title("Ajuste lineal en el rango seleccionado")
-ax.grid(True)
-ax.legend(fontsize=8)
-st.pyplot(fig, use_container_width=True)
-
-st.dataframe(summary, use_container_width=True, hide_index=True)
-
-# 3) Regresión |I| vs t^{-1/2}
+# 2) Regresión |I| vs t^{-1/2}
 st.markdown("### Regresión: |I| vs t$^{-1/2}$")
 
 fig, ax = plt.subplots()
@@ -469,8 +412,8 @@ for row in summary2:
     summary2_fmt.append(
         {
             "ID": row["ID"],
-            "m": ("" if not np.isfinite(row["m"]) else _sci(float(row["m"]))),
-            "b": ("" if not np.isfinite(row["b"]) else _sci(float(row["b"]))),
+            "pte.": ("" if not np.isfinite(row["m"]) else _sci(float(row["m"]))),
+            "o.o.": ("" if not np.isfinite(row["b"]) else _sci(float(row["b"]))),
             "R2": row["R2"],
             "N": row["N"],
         }
@@ -482,6 +425,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
 
 
