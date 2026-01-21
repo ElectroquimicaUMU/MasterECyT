@@ -378,6 +378,14 @@ step = max((t_max_possible - t_min_possible) / 500.0, t_min_possible)
 # 2) Regresión |I| vs t^{-1/2}
 st.markdown("### Regresión: |I| vs t$^{-1/2}$")
 
+t_min_reg, t_max_reg = st.slider(
+    "Rango de tiempos [s]",
+    min_value=t_min_possible,
+    max_value=t_max_possible,
+    value=(t0_lo, t0_hi),
+    step=step,
+)
+
 fig, ax = plt.subplots()
 summary2 = []
 
