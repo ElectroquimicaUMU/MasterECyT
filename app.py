@@ -396,7 +396,7 @@ for run in selected:
 
     reg2 = regression_I_vs_tinvhalf(t[mask], I[mask])
     if reg2 is None:
-        summary2.append({"ID": run["id"], "m": np.nan, "b": np.nan, "R2": np.nan, "N": int(np.sum(mask))})
+        summary2.append({"ID": run["id"]})
         continue
 
     ax.scatter(reg2["x"], reg2["y"], s=12, label=f"ID {run['id']} datos")
@@ -433,6 +433,7 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
 
 
