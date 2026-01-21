@@ -404,7 +404,7 @@ for run in selected:
         reg2["x"],
         reg2["yhat"],
         linewidth=2,
-        label=f"ID {run['id']} fit}",
+        label=f"ID {run['id']} fit",
     )
     summary2.append({"ID": run["id"], "m": reg2["m"], "b": reg2["b"], "R2": reg2["r2"], "N": reg2["n"]})
 
