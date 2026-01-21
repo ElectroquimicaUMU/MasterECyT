@@ -11,17 +11,6 @@ st.sidebar.write("Platform:", platform.platform())
 st.sidebar.write("Python:", platform.python_version())
 st.sidebar.write("CPU count (logical):", os.cpu_count())
 
-'''# CPU model: Linux usually has this; other OS may not.
-try:
-    with open("/proc/cpuinfo", "r") as f:
-        cpuinfo = f.read()
-    for line in cpuinfo.splitlines():
-        if "model name" in line:
-            st.sidebar.write("CPU model:", line.split(":", 1)[1].strip())
-            break
-except Exception:
-    st.sidebar.write("CPU model: unavailable")'''
-
 # ----------------------------
 # Parámetros FIJOS (no editables por el usuario)
 # ----------------------------
@@ -498,4 +487,5 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
+
 
