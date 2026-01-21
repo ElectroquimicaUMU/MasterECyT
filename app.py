@@ -47,6 +47,9 @@ DR = 2e-6           # m
 # Dominio externo
 DOMAIN_FACTOR = 1.  # r_max = a + factor*sqrt(D*tp)
 
+# Límite de curvas almacenadas por sesión (tuning de rendimiento)
+MAX_RUNS = 20
+
 
 # ----------------------------
 # Utilidades
@@ -92,7 +95,7 @@ def thomas_tridiagonal(lower: np.ndarray, diag: np.ndarray, upper: np.ndarray, r
     return x
 
 
-def solve_spherical_reversible_chronoamperometry(E_app: float, tpulse: float):
+def solve_spherical_reversible_chronoamperometry(E_app: float, tpulse: float, c_total: float):
     """
     Resuelve difusión esférica reversible (c_ox) con:
       - c_ox(a,t) fijada por Nernst (E_app)
@@ -180,6 +183,23 @@ def solve_spherical_reversible_chronoamperometry(E_app: float, tpulse: float):
 def capacitive_current(E_app: float, t: np.ndarray) -> np.ndarray:
     tau = Ru * Cdl
     return (E_app / Ru) * np.exp(-t / tau)
+
+
+# Cache compartida entre sesiones: evita recomputar simulaciones idénticas (tuning multi-usuario)
+@st.cache_data(show_spinner=False, max_entries=256)
+def _simulate_cached(E_app: float, tpulse: float, c_total: float):
+    times, jF, r, c_ox_final, r_max, dt = solve_spherical_reversible_chronoamperometry(E_app, tpulse, c_total)
+
+    # Faradaica total: I_F = 4πa² jF
+    area = 4.0 * math.pi * (a ** 2)
+    I_F = area * jF
+
+    # Capacitiva y total
+    I_cap = capacitive_current(E_app, times)
+    I_total = I_F + I_cap
+
+    # Devolvemos solo lo necesario para la UI (reduce memoria en cache)
+    return times, I_total, I_F, I_cap, float(dt), float(r_max)
 
 
 def regression_lnI_lnT(t: np.ndarray, I: np.ndarray):
@@ -312,15 +332,7 @@ with st.sidebar.expander("Parámetros del sistema"):
 
 if btn_add and sim_enabled:
     with st.spinner("Resolviendo..."):
-        times, jF, r, c_ox_final, r_max, dt = solve_spherical_reversible_chronoamperometry(E_app, tpulse)
-
-    # Faradaica total: I_F = 4πa² jF
-    area = 4.0 * math.pi * (a ** 2)
-    I_F = area * jF
-
-    # Capacitiva y total
-    I_cap = capacitive_current(E_app, times)
-    I_total = I_F + I_cap
+        times, I_total, I_F, I_cap, dt, r_max = _simulate_cached(E_app, tpulse, c_total)
 
     st.session_state.runs.append(
         {
@@ -337,6 +349,10 @@ if btn_add and sim_enabled:
         }
     )
     st.session_state.run_id += 1
+
+    # Limitar memoria/tiempo de render por sesión (tuning rendimiento)
+    if len(st.session_state.runs) > MAX_RUNS:
+        st.session_state.runs = st.session_state.runs[-MAX_RUNS:]
 
 if len(st.session_state.runs) == 0:
     st.info("Introduce E, tp y concentración inicial, luego pulsa “Simular + añadir”.")
@@ -483,4 +499,3 @@ st.caption(
     "I_total = I_F + I_cap, con I_cap=(E/Ru)·exp(-t/(Ru·Cdl)). "
     "Regresiones: ln|I_total| vs ln(t) y |I_total| vs t^{-1/2} en el rango de tiempos seleccionado."
 )
-
